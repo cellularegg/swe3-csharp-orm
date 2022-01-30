@@ -8,10 +8,22 @@ using if19b135.OrmFramework.Metadata;
 
 namespace if19b135.OrmFramework.Caches
 {
+    /// <summary>
+    /// Implementation of a cache that is able to track changes
+    /// </summary>
     public class TrackingCache : DefaultCache, ICache
     {
+        /// <summary>
+        /// Dictionary hashes per Type
+        /// </summary>
         protected Dictionary<Type, Dictionary<object, string>> _Hashes = new();
 
+        /// <summary>
+        /// Getter for the hash dictionary for a given Type.
+        /// Creates new hash dictionary if type has no hash dictionary yet.
+        /// </summary>
+        /// <param name="t">Type to retrieve/create a hash dictionary for</param>
+        /// <returns>Hash dictionary for type t</returns>
         protected Dictionary<object, string> _GetHash(Type t)
         {
             if (_Hashes.ContainsKey(t))
@@ -24,6 +36,11 @@ namespace if19b135.OrmFramework.Caches
             return hash;
         }
 
+        /// <summary>
+        /// Computes the hash for a given object (SHA256 hash)
+        /// </summary>
+        /// <param name="obj">Object to hash</param>
+        /// <returns>SHA256 hash of the object</returns>
         protected string _ComputeHash(object obj)
         {
             string hash = "";
@@ -62,6 +79,12 @@ namespace if19b135.OrmFramework.Caches
             return Encoding.UTF8.GetString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(hash)));
         }
 
+        // Implementation of ICache
+        
+        /// <summary>
+        /// Adds an object to cache
+        /// </summary>
+        /// <param name="obj">Object to add</param>
         public override void Put(object obj)
         {
             base.Put(obj);
@@ -73,12 +96,21 @@ namespace if19b135.OrmFramework.Caches
             }
         }
 
+        /// <summary>
+        /// Removes an Object from the cache
+        /// </summary>
+        /// <param name="obj">Object to remove</param>
         public override void Remove(object obj)
         {
             base.Remove(obj);
             _GetHash(obj.GetType()).Remove(obj.GetEntity().PrimaryKey.GetValue(obj));
         }
 
+        /// <summary>
+        /// Checks whether the Object has changed (or might has changed)
+        /// </summary>
+        /// <param name="obj">Object to check</param>
+        /// <returns>true or false depending if the object has or might has changed</returns>
         public override bool HasChanged(object obj)
         {
             Dictionary<object, string> hashes = _GetHash(obj.GetType());

@@ -1,5 +1,8 @@
 ﻿namespace if19b135.OrmFramework.Query
 {
+    /// <summary>
+    /// Enum for query operation
+    /// </summary>
     internal enum QueryOperation : int
     {
         NO_OPERATION = 0,

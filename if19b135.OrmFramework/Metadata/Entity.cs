@@ -7,9 +7,15 @@ using if19b135.OrmFramework.Attributes;
 
 namespace if19b135.OrmFramework.Metadata
 {
-    // represents a class / table
+    /// <summary>
+    /// Represents a class / table
+    /// </summary>
     internal class Entity
     {
+        /// <summary>
+        /// Constructor creates a new instance of Entity
+        /// </summary>
+        /// <param name="t">Type of the entity</param>
         public Entity(Type t)
         {
             EntityAttribute entityAttribute = (EntityAttribute)t.GetCustomAttribute(typeof(EntityAttribute));
@@ -81,14 +87,29 @@ namespace if19b135.OrmFramework.Metadata
             Externals = fields.Where(f => f.IsExternal).ToArray();
         }
 
+        /// <summary>
+        /// Member type of the Entity
+        /// </summary>
         public Type Member { get; private set; }
 
+        /// <summary>
+        /// Table name of the Entity
+        /// </summary>
         public string TableName { get; private set; }
 
+        /// <summary>
+        /// All fields of the Entity
+        /// </summary>
         public Field[] Fields { get; private set; }
 
+        /// <summary>
+        /// All external fields of the Entity
+        /// </summary>
         public Field[] Externals { get; private set; }
 
+        /// <summary>
+        /// All internal fields of the Entity
+        /// </summary>
         public Field[] Internals { get; private set; }
 
         /// <summary>
@@ -96,6 +117,11 @@ namespace if19b135.OrmFramework.Metadata
         /// </summary>
         public Field PrimaryKey { get; private set; }
 
+        /// <summary>
+        /// Generates SQL Select statements for this entity
+        /// </summary>
+        /// <param name="prefix">Prefix which is added to before each column name</param>
+        /// <returns>SQL select statement (string) of this entity</returns>
         public string GetSql(string prefix = "")
         {
             string sqlQuery = "SELECT ";
@@ -116,6 +142,11 @@ namespace if19b135.OrmFramework.Metadata
             return sqlQuery;
         }
 
+        /// <summary>
+        /// Gets the field for a given column name
+        /// </summary>
+        /// <param name="columnName">Column name of the field</param>
+        /// <returns>Field with the matching column name</returns>
         public Field GetFieldForColumn(string columnName)
         {
             columnName = columnName.ToUpper();
@@ -130,6 +161,11 @@ namespace if19b135.OrmFramework.Metadata
             return null;
         }
 
+        /// <summary>
+        /// Gets the field by its name
+        /// </summary>
+        /// <param name="fieldName">Name of the field</param>
+        /// <returns>Field with matching name</returns>
         public Field GetFieldByName(string fieldName)
         {
             foreach (Field field in Fields)

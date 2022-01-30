@@ -9,12 +9,24 @@ using if19b135.OrmFramework.Query;
 
 namespace if19b135.OrmFramework
 {
+    /// <summary>
+    /// Orm Class - Interface for the user to access the Orm features thorugh
+    /// </summary>
     public static class Orm
     {
+        /// <summary>
+        /// Entities of the Orm
+        /// </summary>
         private static Dictionary<Type, Entity> _Entities = new Dictionary<Type, Entity>();
 
+        /// <summary>
+        /// Connection to the Database
+        /// </summary>
         public static IDbConnection Connection { get; set; }
 
+        /// <summary>
+        /// Cache
+        /// </summary>
         public static ICache Cache { get; set; }
 
         /// <summary>
@@ -34,6 +46,11 @@ namespace if19b135.OrmFramework
             return _Entities[t];
         }
 
+        /// <summary>
+        /// Gets Child Classes of a given parent
+        /// </summary>
+        /// <param name="t">Parent type</param>
+        /// <returns>Array of non abstract child Types</returns>
         internal static Type[] GetChildTypes(this Type t)
         {
             List<Type> childTypes = new List<Type>();
@@ -248,6 +265,13 @@ namespace if19b135.OrmFramework
             return obj;
         }
 
+        /// <summary>
+        /// Searches Cache of Type by Primary key
+        /// </summary>
+        /// <param name="t">Type of object to retrieve</param>
+        /// <param name="pk">Primary key of the object</param>
+        /// <param name="localCache">Local cache</param>
+        /// <returns>Cached Object or null if not in cache</returns>
         internal static object _SearchCache(Type t, object pk, ICollection<object> localCache)
         {
             if (Cache != null && Cache.Contains(t, pk))

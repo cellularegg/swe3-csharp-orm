@@ -8,18 +8,34 @@ using if19b135.OrmFramework.Interfaces;
 
 namespace if19b135.OrmFramework.Metadata
 {
-    // represents a property / table column
+    /// <summary>
+    /// Represents a property (field) or a table column
+    /// </summary>
     internal class Field
     {
+        /// <summary>
+        /// Constructor creates a new instance of Field
+        /// </summary>
+        /// <param name="entity">Corresponding Entity for this field</param>
         public Field(Entity entity)
         {
             this.Entity = entity;
         }
 
+        /// <summary>
+        /// Corresponding Entity for this field
+        /// </summary>
         public Entity Entity { get; internal set; }
 
+        /// <summary>
+        /// Field's Member information
+        /// </summary>
         public MemberInfo Member { get; internal set; }
 
+        /// <summary>
+        /// Gets the type of the field
+        /// </summary>
+        /// <exception cref="NotSupportedException">Thrown when the Member is not a PropertyInfo</exception>
         public Type Type
         {
             get
@@ -33,20 +49,54 @@ namespace if19b135.OrmFramework.Metadata
             }
         }
 
+        /// <summary>
+        /// Column name of the Field
+        /// </summary>
         public string ColumnName { get; internal set; }
 
+        /// <summary>
+        /// Column Type of the Field
+        /// </summary>
         public Type ColumnType { get; internal set; }
 
+        /// <summary>
+        /// Flag if this Field is a primary key
+        /// </summary>
         public bool IsPrimaryKey { get; internal set; }
+        
+        /// <summary>
+        /// Flag if this field is a foreign key
+        /// </summary>
         public bool IsForeignKey { get; internal set; }
+        
+        /// <summary>
+        /// Flag if this field has NOT NULL constraints in the DB
+        /// </summary>
         public bool IsNullable { get; internal set; } = false;
 
+        /// <summary>
+        /// Flag if this field is external
+        /// </summary>
         public bool IsExternal { get; internal set; } = false;
 
+        /// <summary>
+        /// The Assignment table for m:n relations
+        /// </summary>
         public string AssignmentTable { get; internal set; }
+        
+        /// <summary>
+        /// Specifies the other foreign key column name in the assignment table (only used for m:n relations)
+        /// </summary>
         public string RemoteColumnName { get; internal set; }
+        
+        /// <summary>
+        /// Flag if this field is a m:n relation
+        /// </summary>
         public bool IsManyToMany { get; internal set; } = false;
 
+        /// <summary>
+        /// Gets part of a SQL statement for foreign keys
+        /// </summary>
         internal string _FkSql
         {
             get
@@ -63,6 +113,12 @@ namespace if19b135.OrmFramework.Metadata
             }
         }
 
+        /// <summary>
+        /// Gets the value of a Field from a given object
+        /// </summary>
+        /// <param name="obj">Object to retrieve a value from</param>
+        /// <returns>The field's value of the given object</returns>
+        /// <exception cref="NotSupportedException">Thrown if Member is not a PropertyInfo</exception>
         public object GetValue(object obj)
         {
             if (Member is PropertyInfo propertyInfo)
@@ -83,6 +139,12 @@ namespace if19b135.OrmFramework.Metadata
             throw new NotSupportedException("Member type not supported.");
         }
 
+        /// <summary>
+        /// Sets the value of a Field for a given object
+        /// </summary>
+        /// <param name="obj">Object to set the value in</param>
+        /// <param name="value">The field's value to set</param>
+        /// <exception cref="NotSupportedException">Thrown if Member is not a PropertyInfo</exception>
         public void SetValue(object obj, object value)
         {
             if (Member is PropertyInfo propertyInfo)
@@ -95,6 +157,11 @@ namespace if19b135.OrmFramework.Metadata
             }
         }
 
+        /// <summary>
+        /// Converts a value to the column data type
+        /// </summary>
+        /// <param name="value">Object with value to convert</param>
+        /// <returns>Converted value</returns>
         public object ToColumnType(object value)
         {
             if (IsForeignKey)
@@ -135,6 +202,12 @@ namespace if19b135.OrmFramework.Metadata
             return value;
         }
 
+        /// <summary>
+        /// Converts a value to the field data type
+        /// </summary>
+        /// <param name="value">Object with value to convert</param>
+        /// <param name="localCache">Local cache to stop stack overflow for circle dependencies</param>
+        /// <returns>Converted value</returns>
         public object ToFieldType(object value, ICollection<object> localCache)
         {
             if (IsForeignKey)
@@ -188,6 +261,10 @@ namespace if19b135.OrmFramework.Metadata
             return value;
         }
 
+        /// <summary>
+        /// Updates the foreign key references
+        /// </summary>
+        /// <param name="obj">Object which references should be updated</param>
         public void UpdateReferences(object obj)
         {
             if (!IsExternal) return;
@@ -275,6 +352,13 @@ namespace if19b135.OrmFramework.Metadata
             }
         }
 
+        /// <summary>
+        /// Fills a list for a foreign key
+        /// </summary>
+        /// <param name="list">List to fill</param>
+        /// <param name="obj">Object that contains the foreign key</param>
+        /// <param name="localCache">Local cache to stop stack overflow for circle dependencies</param>
+        /// <returns>List with foreign key objects</returns>
         public object Fill(object list, object obj, ICollection<object> localCache)
         {
             // IDbCommand cmd = Orm.Connection.CreateCommand();

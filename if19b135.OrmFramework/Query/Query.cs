@@ -5,19 +5,46 @@ using if19b135.OrmFramework.Metadata;
 
 namespace if19b135.OrmFramework.Query
 {
+    /// <summary>
+    /// Fluent implementation for queries. The results are lazily loaded
+    /// </summary>
+    /// <typeparam name="T">Type to query</typeparam>
     public sealed class Query<T> : IEnumerable<T>
     {
+        /// <summary>
+        /// Previous query element
+        /// </summary>
         private Query<T> _Previous;
+
+        /// <summary>
+        /// Operation of the query
+        /// </summary>
         private QueryOperation _Operation = QueryOperation.NO_OPERATION;
+
+        /// <summary>
+        /// arguments of the query
+        /// </summary>
         private object[] _Arguments = null;
 
+        /// <summary>
+        /// Result of the query
+        /// </summary>
         private List<T> _InternalValues = null;
 
+
+        /// <summary>
+        /// Creates a new instance of this class
+        /// </summary>
+        /// <param name="prev">Previous query</param>
         internal Query(Query<T> prev)
         {
             _Previous = prev;
         }
 
+        /// <summary>
+        /// Fills the Result list of this query
+        /// </summary>
+        /// <param name="t">Type to query</param>
         private void _Fill(Type t)
         {
             List<Query<T>> operations = new List<Query<T>>();
@@ -141,6 +168,9 @@ namespace if19b135.OrmFramework.Query
             }
         }
 
+        /// <summary>
+        /// Gets the query result
+        /// </summary>
         private List<T> _Values
         {
             get
@@ -166,7 +196,12 @@ namespace if19b135.OrmFramework.Query
             }
         }
 
-
+        /// <summary>
+        /// Setter for the Operation and arguments
+        /// </summary>
+        /// <param name="operation">Operation of the query</param>
+        /// <param name="args">Arguments of the query</param>
+        /// <returns>New instance of Query<T> where the previous query contains the operation and arguments</returns>
         private Query<T> _SetOp(QueryOperation operation, params object[] args)
         {
             _Operation = operation;
@@ -175,63 +210,125 @@ namespace if19b135.OrmFramework.Query
             return new Query<T>(this);
         }
 
+        /// <summary>
+        /// Adds not operation to the query
+        /// </summary>
+        /// <returns>New Query where the previous query has the not operation</returns>
         public Query<T> Not()
         {
             return _SetOp(QueryOperation.NOT);
         }
 
+        /// <summary>
+        /// Adds and operation to the query
+        /// </summary>
+        /// <returns>New Query where the previous query has the and operation</returns>
         public Query<T> And()
         {
             return _SetOp(QueryOperation.AND);
         }
 
+        /// <summary>
+        /// Adds or operation to the query
+        /// </summary>
+        /// <returns>New Query where the previous query has the or operation</returns>
         public Query<T> Or()
         {
             return _SetOp(QueryOperation.OR);
         }
 
+        /// <summary>
+        /// Adds begin group operation to the query
+        /// </summary>
+        /// <returns>New Query where the previous query has the begin group operation</returns>
         public Query<T> BeginGroup()
         {
             return _SetOp(QueryOperation.BEGIN_GROUP);
         }
 
+        /// <summary>
+        /// Adds end group operation to the query
+        /// </summary>
+        /// <returns>New Query where the previous query has the end group operation</returns>
         public Query<T> EndGroup()
         {
             return _SetOp(QueryOperation.END_GROUP);
         }
 
+        /// <summary>
+        /// Adds equals operation to the query
+        /// </summary>
+        /// <param name="field">Field that should match a given value</param>
+        /// <param name="value">Value that the field should match</param>
+        /// <param name="ignoreCase">Flag for ignoring case</param>
+        /// <returns>New Query where the previous query has the equals operation</returns>
         public Query<T> Equals(string field, object value, bool ignoreCase = false)
         {
             return _SetOp(QueryOperation.EQUALS, field, value, ignoreCase);
         }
 
+        /// <summary>
+        /// Adds like operation to the query
+        /// </summary>
+        /// <param name="field">Field that should match a given value (with wildcards)</param>
+        /// <param name="value">Value with wildcards that the field should match</param>
+        /// <param name="ignoreCase">Flag for ignoring case</param>
+        /// <returns>New Query where the previous query has the like operation</returns>
         public Query<T> Like(string field, object value, bool ignoreCase = false)
         {
             return _SetOp(QueryOperation.LIKE, field, value, ignoreCase);
         }
 
-        public Query<T> Like(string field, params object[] values)
+        /// <summary>
+        /// Adds in operation to the query
+        /// </summary>
+        /// <param name="field">Field that should be in the given values</param>
+        /// <param name="values">Values that should contain the field's value</param>
+        /// <returns>New Query where the previous query has the in operation</returns>
+        public Query<T> In(string field, params object[] values)
         {
             List<object> list = new List<object>(values);
             list.Insert(0, field);
             return _SetOp(QueryOperation.IN, list.ToArray());
         }
 
+        /// <summary>
+        /// Adds greater than operation to the query
+        /// </summary>
+        /// <param name="field">Field that should be greater than the given value</param>
+        /// <param name="value">Value that the field should be greater than</param>
+        /// <returns>New Query where the previous query has the greater than operation</returns>
         public Query<T> GreaterThan(string field, object value)
         {
             return _SetOp(QueryOperation.GREATER_THAN, field, value);
         }
 
+        /// <summary>
+        /// Adds less than operation to the query
+        /// </summary>
+        /// <param name="field">Field that should be less than the given value</param>
+        /// <param name="value">Value that the field should be less than</param>
+        /// <returns>New Query where the previous query has the less than operation</returns>
         public Query<T> LessThan(string field, object value)
         {
             return _SetOp(QueryOperation.LESS_THAN, field, value);
         }
 
+        // Implementation of IEnumerable<T>
+
+        /// <summary>
+        /// Gets the Enumerator of the results
+        /// </summary>
+        /// <returns>Enumerator of the result list</returns>
         public IEnumerator<T> GetEnumerator()
         {
             return _Values.GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the Enumerator of the results
+        /// </summary>
+        /// <returns>Enumerator of the result list</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
