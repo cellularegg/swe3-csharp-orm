@@ -5,12 +5,13 @@ using System.Data;
 using if19b135.OrmFramework.Exceptions;
 using if19b135.OrmFramework.Interfaces;
 using if19b135.OrmFramework.Metadata;
+using if19b135.OrmFramework.Query;
 
 namespace if19b135.OrmFramework
 {
     public static class Orm
     {
-        private static Dictionary<Type, Entity> _entities = new Dictionary<Type, Entity>();
+        private static Dictionary<Type, Entity> _Entities = new Dictionary<Type, Entity>();
 
         public static IDbConnection Connection { get; set; }
 
@@ -25,12 +26,26 @@ namespace if19b135.OrmFramework
         {
             Type t = o is Type type ? type : o.GetType();
 
-            if (!_entities.ContainsKey(t))
+            if (!_Entities.ContainsKey(t))
             {
-                _entities.Add(t, new Entity(t));
+                _Entities.Add(t, new Entity(t));
             }
 
-            return _entities[t];
+            return _Entities[t];
+        }
+
+        internal static Type[] GetChildTypes(this Type t)
+        {
+            List<Type> childTypes = new List<Type>();
+            foreach (Type entityKey in _Entities.Keys)
+            {
+                if (t.IsAssignableFrom(entityKey) && !entityKey.IsAbstract)
+                {
+                    childTypes.Add(entityKey);
+                }
+            }
+
+            return childTypes.ToArray();
         }
 
         /// <summary>
@@ -42,6 +57,11 @@ namespace if19b135.OrmFramework
         public static T Get<T>(object pk)
         {
             return (T)_CreateObject(typeof(T), pk, null);
+        }
+
+        public static Query<T> From<T>()
+        {
+            return new Query<T>(null);
         }
 
         /// <summary>

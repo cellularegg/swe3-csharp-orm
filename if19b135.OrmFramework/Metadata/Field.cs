@@ -65,13 +65,16 @@ namespace if19b135.OrmFramework.Metadata
 
         public object GetValue(object obj)
         {
-                        if(Member is PropertyInfo) 
+            if (Member is PropertyInfo propertyInfo)
             {
-                object rval = ((PropertyInfo) Member).GetValue(obj);
+                object rval = propertyInfo.GetValue(obj);
 
-                if(rval is ILazy)
+                if (rval is ILazy)
                 {
-                    if(!(rval is IEnumerable)) { return rval.GetType().GetProperty("Value").GetValue(rval); }
+                    if (!(rval is IEnumerable))
+                    {
+                        return rval.GetType().GetProperty("Value").GetValue(rval);
+                    }
                 }
 
                 return rval;
