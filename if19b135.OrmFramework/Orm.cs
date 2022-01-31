@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 using if19b135.OrmFramework.Exceptions;
 using if19b135.OrmFramework.Interfaces;
 using if19b135.OrmFramework.Metadata;
@@ -28,6 +30,11 @@ namespace if19b135.OrmFramework
         /// Cache
         /// </summary>
         public static ICache Cache { get; set; }
+
+        /// <summary>
+        /// Locking mechanism
+        /// </summary>
+        public static ILocking Locking { get; set; }
 
         /// <summary>
         /// Returns an Entity for a specific object
@@ -76,10 +83,66 @@ namespace if19b135.OrmFramework
             return (T)_CreateObject(typeof(T), pk, null);
         }
 
+        /// <summary>
+        /// Start of the Query
+        /// </summary>
+        /// <typeparam name="T">Type to query</typeparam>
+        /// <returns>New empty Query</returns>
         public static Query<T> From<T>()
         {
             return new Query<T>(null);
         }
+
+        /// <summary>
+        /// Query from SQL statement
+        /// </summary>
+        /// <param name="sql">SQL statement to query from</param>
+        /// <param name="keys">Parameter names</param>
+        /// <param name="values">Parameter values</param>
+        /// <typeparam name="T">Type to query</typeparam>
+        /// <returns>List of results for the SQL statement</returns>
+        /// <exception cref="ArgumentException">Thrown when keys and values are not of the same length</exception>
+        public static List<T> FromSql<T>(string sql, IEnumerable<string> keys = null, IEnumerable<object> values = null)
+        {
+            List<T> result = new List<T>();
+            List<Tuple<string, object>> parameters = new List<Tuple<string, object>>();
+
+            if (keys != null && values != null)
+            {
+                List<string> keysList = new List<string>(keys);
+                List<object> valuesList = new List<object>(values);
+                if (keysList.Count != valuesList.Count)
+                {
+                    throw new ArgumentException($"Error keys and values must have the same amount of entries " +
+                                                $"number of keys:{keysList.Count}, number of values:{valuesList.Count}");
+                }
+
+                for (int i = 0; i < keysList.Count; i++)
+                {
+                    parameters.Add(new Tuple<string, object>(keysList[i], valuesList[i]));
+                }
+            }
+
+            _FillList(typeof(T), result, sql, parameters, null);
+            return result;
+        }
+
+        public static void Lock(object obj)
+        {
+            if (Locking != null)
+            {
+                Locking.Lock(obj);
+            }
+        }
+
+        public static void Release(object obj)
+        {
+            if (Locking != null)
+            {
+                Locking.Release(obj);
+            }
+        }
+
 
         /// <summary>
         /// Saves an object to the database
@@ -230,12 +293,13 @@ namespace if19b135.OrmFramework
         /// </summary>
         /// <param name="t">Object's Type</param>
         /// <param name="pk">Object's primary key</param>
+        /// <param name="localCache">Local cache</param>
         /// <returns>Object from database</returns>
         /// <exception cref="Exception">Exception if no data is found</exception>
         internal static object _CreateObject(Type t, object pk, ICollection<object> localCache)
         {
-            object obj = _SearchCache(t, pk, localCache);
-
+            // object obj = _SearchCache(t, pk, localCache);
+            object obj = null;
             IDbCommand cmd = Connection.CreateCommand();
 
             cmd.CommandText = $"{t.GetEntity().GetSql()} WHERE {t.GetEntity().PrimaryKey.ColumnName} = :pk";
@@ -298,6 +362,13 @@ namespace if19b135.OrmFramework
             return null;
         }
 
+        /// <summary>
+        /// Fills a list by using a data reader
+        /// </summary>
+        /// <param name="t">Type of the list</param>
+        /// <param name="list">List to fill</param>
+        /// <param name="reader">Data reader to read from</param>
+        /// <param name="localCache">Local cache</param>
         internal static void _FillList(Type t, object list, IDataReader reader, ICollection<object> localCache = null)
         {
             while (reader.Read())
@@ -306,6 +377,14 @@ namespace if19b135.OrmFramework
             }
         }
 
+        /// <summary>
+        /// Fills a list of Type t with a given SQL and parameters
+        /// </summary>
+        /// <param name="t">Type of list to fill</param>
+        /// <param name="list">List to fill</param>
+        /// <param name="sql">SQL Select statement</param>
+        /// <param name="parameters">Parameters of sql statement</param>
+        /// <param name="localCache">Local cache</param>
         internal static void _FillList(Type t, object list, string sql, IEnumerable<Tuple<string, object>> parameters,
             ICollection<object> localCache = null)
         {

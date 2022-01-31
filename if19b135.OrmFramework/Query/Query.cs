@@ -314,6 +314,15 @@ namespace if19b135.OrmFramework.Query
             return _SetOp(QueryOperation.LESS_THAN, field, value);
         }
 
+        /// <summary>
+        /// Returns the result of the query as a List
+        /// </summary>
+        /// <returns>List containing the result</returns>
+        public List<T> ToList()
+        {
+            return new List<T>(_Values);
+        }
+
         // Implementation of IEnumerable<T>
 
         /// <summary>

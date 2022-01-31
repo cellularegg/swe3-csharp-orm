@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<None Include=".\if19b135.Orm.Tests.sqlite" Link="if19b135.Orm.Tests.sqlite">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+        <PackageReference Include="NUnit" Version="3.13.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="coverlet.collector" Version="3.0.2" />
+        <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.115.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\if19b135.OrmFramework.Model\if19b135.OrmFramework.Model.csproj" />
+      <ProjectReference Include="..\if19b135.OrmFramework\if19b135.OrmFramework.csproj" />
+    </ItemGroup>
+
+</Project>

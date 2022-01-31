@@ -3,50 +3,54 @@
 
 SQL:
 ```
-create table authors
+create table TEACHERS
 (
-    id                   int
-        constraint author_pk
-            primary key,
-    firstname            varchar(255),
-    lastname             varchar(255),
-    birthdate            timestamp,
-    socialsecuritynumber varchar(255),
-    salary               double precision
+    ID        VARCHAR(24) not null
+        primary key,
+    NAME      TEXT,
+    FIRSTNAME TEXT,
+    GENDER    INTEGER,
+    BDATE     TIMESTAMP,
+    HDATE     TIMESTAMP,
+    SALARY    INTEGER
+);
+create table CLASSES
+(
+    ID       VARCHAR(24) not null
+        primary key,
+    NAME     TEXT,
+    KTEACHER VARCHAR(24) not null
+        references TEACHERS
+);
+create table STUDENTS
+(
+    ID        VARCHAR(24) not null
+        primary key,
+    NAME      TEXT,
+    FIRSTNAME TEXT,
+    GENDER    INTEGER,
+    BDATE     TIMESTAMP,
+    KCLASS    VARCHAR(24)
+        references CLASSES,
+    GRADE     INTEGER
+);
+create table COURSES
+(
+    ID       VARCHAR(24) not null
+        primary key,
+    HACTIVE  INTEGER default 0 not null,
+    NAME     TEXT,
+    KTEACHER VARCHAR(24) not null
+        references TEACHERS
+);
+create table STUDENT_COURSES
+(
+    KSTUDENT VARCHAR(24) not null
+        references STUDENTS,
+    KCOURSE  VARCHAR(24) not null
+        references COURSES
 );
 
-create table books
-(
-    id       int
-        constraint book_pk
-            primary key,
-    title    varchar(255),
-    isbn     varchar(255),
-    price    double precision,
-    authorid int
-        constraint book_author_id_fk
-            references authors
-);
-
-create table stores
-(
-    Id      integer
-        constraint STORES_pk
-            primary key,
-    Name    VARCHAR(255),
-    Address VARCHAR(255)
-);
-create table BOOKS_IN_STORE
-(
-    StoreId integer
-        constraint BOOKS_IN_STORE_stores_Id_fk
-            references stores,
-    BookId  integer
-        constraint BOOKS_IN_STORE_books_id_fk
-            references books,
-    constraint BOOKS_IN_STORE_pk
-        primary key (BookId, StoreId)
-);
 
 
 
