@@ -163,9 +163,10 @@ namespace if19b135.OrmFramework.Query
                         not = false;
                         break;
                 }
-
-                Orm._FillList(t, _InternalValues, sql, parameters, localCache);
             }
+
+            sql += closeBrackets;
+            Orm._FillList(t, _InternalValues, sql, parameters, localCache);
         }
 
         /// <summary>

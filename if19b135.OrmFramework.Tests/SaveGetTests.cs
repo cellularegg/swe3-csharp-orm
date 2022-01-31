@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using if19b135.OrmFramework.Caches;
 using if19b135.OrmFramework.Model;
 using NUnit.Framework;
 
@@ -9,12 +10,15 @@ namespace if19b135.OrmFramework.Tests
     [TestFixture]
     public class SaveGetTests
     {
-        [OneTimeSetUp]
+        [SetUp]
         public void Init()
         {
             IDbConnection conn = new SQLiteConnection("Data Source=if19b135.Orm.Tests.sqlite;Version=3;");
             conn.Open();
             IDbCommand cmd = conn.CreateCommand();
+            // Orm.Cache = new DefaultCache();
+            Orm.Cache = null;
+            Orm.Locking = null;
 
             cmd.CommandText = @"DELETE FROM STUDENT_COURSES;
 DELETE FROM COURSES;

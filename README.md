@@ -1,7 +1,23 @@
 # swe3-csharp-orm
 
 
-SQL:
+# Usage
+This ORM Framework uses Attributes/Annotations to manage metadata. To see an example usage check the Model Project.
+There are the following Attributes:
+- Entity stores the table name
+- Field Stores the column name, column type and nullable constraint
+  - Primary key indicates that a field is a primary key (Note: composite primary keys are not possible)
+  - Foreign key indicates that a field is a foreign key (also stores relation table for m:n relations)
+  - Ignore ORM Framework ignores these fields.
+
+To see how to use the model check out the Unit tests are tests for each major feature.
+
+Please note that Queries are lazily loaded.
+
+# Database Schema
+Schema used for this example:
+![OR Diagram](./OrDiagram.svg)
+Create statements for SQLite:
 ```
 create table TEACHERS
 (
@@ -50,8 +66,4 @@ create table STUDENT_COURSES
     KCOURSE  VARCHAR(24) not null
         references COURSES
 );
-
-
-
-
 ```

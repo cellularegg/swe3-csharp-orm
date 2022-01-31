@@ -10,12 +10,15 @@ namespace if19b135.OrmFramework.Tests
     [TestFixture]
     public class CacheTests
     {
-        [OneTimeSetUp]
+        [SetUp]
         public void Init()
         {
             IDbConnection conn = new SQLiteConnection("Data Source=if19b135.Orm.Tests.sqlite;Version=3;");
             conn.Open();
             IDbCommand cmd = conn.CreateCommand();
+            
+            Orm.Cache = null;
+            Orm.Locking = null;
 
             cmd.CommandText = @"DELETE FROM STUDENT_COURSES;
 DELETE FROM COURSES;
@@ -34,7 +37,6 @@ DELETE FROM TEACHERS;";
         {
             Orm.Connection = new SQLiteConnection("Data Source=if19b135.Orm.Tests.sqlite;Version=3;");
             Orm.Connection.Open();
-            Orm.Cache = null;
             
             Teacher teacher = new Teacher
             {
@@ -79,7 +81,6 @@ DELETE FROM TEACHERS;";
         {
             Orm.Connection = new SQLiteConnection("Data Source=if19b135.Orm.Tests.sqlite;Version=3;");
             Orm.Connection.Open();
-            Orm.Cache = null;
 
             Teacher teacher = new Teacher
             {

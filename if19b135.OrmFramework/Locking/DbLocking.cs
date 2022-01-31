@@ -146,7 +146,7 @@ namespace if19b135.OrmFramework.Locking
         {
             IDbCommand cmd = Orm.Connection.CreateCommand();
             cmd.CommandText =
-                "DELETE FROM LOCKS WHERE ((JulianDay(Current_Timestamp) - JulianDay(LTIME)) * 86400) > :t";
+                "DELETE FROM LOCKS WHERE ((JulianDay(Current_Timestamp) - JulianDay(LTIME)) * 86400) >= :t";
 
             IDataParameter p = cmd.CreateParameter();
             p.ParameterName = ":t";
